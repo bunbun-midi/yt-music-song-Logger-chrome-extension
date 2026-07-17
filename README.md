@@ -4,10 +4,9 @@ A Chrome extension that watches YouTube Music (`music.youtube.com`) and logs
 every track title + artist pair it sees, deduplicated, with play counts and
 timestamps. Export to CSV or JSON any time.
 
-## Why `chrome.storage.local`
+![yt music logger Screenshot](images/screenshot-ytmlog.png)
 
-You asked for whatever database is most natively supported across platforms.
-For a Chrome extension, that's **`chrome.storage.local`**:
+## Why `chrome.storage.local`
 
 - It ships with the extension platform itself — no external DB, server, or
   library to install, and it works identically on Windows, macOS, Linux,
