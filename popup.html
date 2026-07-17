@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Track Logger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #1B1E24;
+    --panel: #22262E;
+    --panel-raised: #282C35;
+    --line: #2E323B;
+    --ink: #F1EDE4;
+    --ink-muted: #8A8F98;
+    --gold: #E8B34C;
+    --gold-dim: #4A3E24;
+    --danger: #C1554A;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    width: 380px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+  }
+
+  header {
+    padding: 16px 18px 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .groove {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    flex: none;
+    background:
+      radial-gradient(circle at center, var(--bg) 0 3px, transparent 3px),
+      repeating-radial-gradient(circle at center, var(--gold-dim) 0 1.5px, transparent 1.5px 4px);
+    border: 1px solid var(--line);
+  }
+
+  .titles { flex: 1; min-width: 0; }
+
+  h1 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.01em;
+  }
+
+  .count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    margin-top: 2px;
+  }
+
+  .count strong { color: var(--gold); font-weight: 500; }
+
+  /* session navigator */
+  .session-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-btn {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 0;
+  }
+
+  .nav-btn:hover:not(:disabled) { border-color: var(--gold-dim); }
+  .nav-btn:disabled { opacity: 0.35; cursor: default; }
+
+  #sessionSelect {
+    flex: 1;
+    min-width: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 5px 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+  }
+
+  /* delimiter row — marks the start of a session, shown above its tracks */
+  .delimiter {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 10px 18px 0;
+    padding: 7px 10px;
+    background: var(--panel-raised);
+    border-left: 2px solid var(--gold);
+    border-radius: 0 4px 4px 0;
+  }
+
+  .delimiter-date {
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .delimiter-count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    flex: none;
+  }
+
+  .search-row {
+    padding: 10px 18px;
+  }
+
+  input[type="search"] {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--ink);
+    padding: 7px 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    outline: none;
+  }
+
+  input[type="search"]::placeholder { color: var(--ink-muted); }
+  input[type="search"]:focus { border-color: var(--gold-dim); }
+
+  #list {
+    max-height: 300px;
+    overflow-y: auto;
+    border-top: 1px solid var(--line);
+  }
+
+  .row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .row-text { min-width: 0; }
+
+  .track-title {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .track-artist {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+  }
+
+  .play-count {
+    flex: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    color: var(--gold);
+    background: var(--gold-dim);
+    border-radius: 10px;
+    padding: 2px 7px;
+  }
+
+  .empty {
+    padding: 36px 18px;
+    text-align: center;
+    color: var(--ink-muted);
+    font-size: 12.5px;
+    line-height: 1.5;
+  }
+
+  footer {
+    padding: 12px 18px 8px;
+  }
+
+  .btn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  button {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  button:hover { border-color: var(--gold-dim); }
+  button.danger { color: var(--danger); }
+  button.danger:hover { border-color: var(--danger); }
+
+  .export-all {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: none;
+    border: none;
+    color: var(--ink-muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10.5px;
+    padding: 10px 0 6px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .export-all:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+  <header>
+    <div class="groove"></div>
+    <div class="titles">
+      <h1>Track Logger</h1>
+      <div class="count"><strong id="trackCount">0</strong> tracks logged overall</div>
+    </div>
+  </header>
+
+  <div class="session-nav">
+    <button class="nav-btn" id="prevSession" title="Older session">‹</button>
+    <select id="sessionSelect"></select>
+    <button class="nav-btn" id="nextSession" title="Newer session">›</button>
+  </div>
+
+  <div id="delimiter" class="delimiter" style="display:none">
+    <span class="delimiter-date" id="delimiterDate"></span>
+    <span class="delimiter-count" id="delimiterCount"></span>
+  </div>
+
+  <div class="search-row">
+    <input type="search" id="search" placeholder="Filter this session…" />
+  </div>
+
+  <div id="list"></div>
+
+  <footer>
+    <div class="btn-grid">
+      <button id="exportCsv">Export session (CSV)</button>
+      <button id="exportJson">Export session (JSON)</button>
+    </div>
+    <button class="export-all" id="exportAll">Export all sessions (CSV)</button>
+    <div class="btn-grid">
+      <button id="clearSession" class="danger">Clear this session</button>
+      <button id="clearAll" class="danger">Clear all history</button>
+    </div>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>
