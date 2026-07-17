@@ -4,7 +4,7 @@ A Chrome extension that watches YouTube Music (`music.youtube.com`) and logs
 every track title + artist pair it sees, deduplicated, with play counts and
 timestamps. Export to CSV or JSON any time.
 
-![yt music logger Screenshot](screenshot-ytmlog.png)
+<img src="screenshot-ytmlog.png" alt="yt music logger Screenshot" width="784">
 
 ## Why `chrome.storage.local`
 
